@@ -24,31 +24,10 @@ def affine_transform(point: np.ndarray, angle = 0., axis: np.ndarray = np.nan, t
             new point(s) coordinates
     """
 
-    # Pass rotation if axis is not defined
-    if axis is not np.nan:
-        # Get unit vector of axis
-        u = axis / np.linalg.norm(axis)
-
-        sinA = np.sin(angle)
-        cosA = np.cos(angle)
-
-        rotationMatrix = np.array([
-            [
-                (u[0]**2) * (1 - cosA) + cosA,
-                u[0] * u[1] * (1 - cosA) - u[2] * sinA,
-                u[0] * u[2] * (1 - cosA) + u[1] * sinA
-            ],
-            [
-                u[1] * u[0] * (1 - cosA) + u[2] * sinA,
-                (u[1]**2) * (1 - cosA) + cosA,
-                u[1] * u[2] * (1 - cosA) - u[0] * sinA
-            ],
-            [
-                u[2] * u[0] * (1 - cosA) - u[1] * sinA,
-                u[2] * u[1] * (1 - cosA) + u[0] * sinA,
-                (u[2]**2) * (1 - cosA) + cosA
-            ]
-        ])
+    # Pass rotation if axis is not defined or angle is 0
+    if axis is not np.nan or angle != 0:
+        # Create rotation matrix
+        rotationMatrix = _rotation_matrix(angle, axis)
 
         # Rotate
         # Transpose coordinates before and after rotation in case multiple points have been given
@@ -61,18 +40,72 @@ def affine_transform(point: np.ndarray, angle = 0., axis: np.ndarray = np.nan, t
 
 
 
-def system_transform(point: np.array, angle: float, axis: np.array, center: np.array) -> np.array:
+def system_transform(point: np.ndarray, angle = 0., axis: np.ndarray = np.nan, center = np.array([0, 0, 0])) -> np.ndarray:
     """
         Coordinate System Transformation
 
         Arguments:
-            point: Point to transform.
+            point: Point(s) to transform.
             angle: Angle of rotation.
             axis: Axis of rotation
             center: Center of new co. system
 
         Returns:
-            point in the new system
+            point(s) coordinates in the new system
     """
 
+    # Translate point to new center
+    point = np.add(point, -center)
+
+    # Pass rotation if axis is not defined or angle is 0
+    if axis is not np.nan or angle != 0:
+        # Create rotation matrix
+        rotationMatrix = _rotation_matrix(-angle, axis)
+
+        # Rotate
+        # Transpose coordinates before and after rotation in case multiple points have been given
+        point = np.matmul(rotationMatrix, point.transpose()).transpose()
+
     return point
+
+
+
+def _rotation_matrix(angle = 0., axis: np.ndarray = np.nan) -> np.ndarray:
+    """
+        Create rotation matrix
+
+        Arguments:
+            angle: Angle of rotation.
+            axis: Axis of rotation
+        Returns:
+            rotation matrix
+    """
+
+    if axis is np.nan or angle == 0:
+        return np.identity(3)
+    
+    # Get unit vector of axis
+    u = axis / np.linalg.norm(axis)
+
+    sinA = np.sin(angle)
+    cosA = np.cos(angle)
+
+    rotationMatrix = np.array([
+        [
+            (u[0]**2) * (1 - cosA) + cosA,
+            u[0] * u[1] * (1 - cosA) - u[2] * sinA,
+            u[0] * u[2] * (1 - cosA) + u[1] * sinA
+        ],
+        [
+            u[1] * u[0] * (1 - cosA) + u[2] * sinA,
+            (u[1]**2) * (1 - cosA) + cosA,
+            u[1] * u[2] * (1 - cosA) - u[0] * sinA
+        ],
+        [
+            u[2] * u[0] * (1 - cosA) - u[1] * sinA,
+            u[2] * u[1] * (1 - cosA) + u[0] * sinA,
+            (u[2]**2) * (1 - cosA) + cosA
+        ]
+    ])
+
+    return rotationMatrix
