@@ -108,6 +108,33 @@ def project_cam(f: float, center: np.ndarray, x: np.ndarray, y: np.ndarray, z: n
 
 
 
+def project_cam_lookat(f: float, center: np.ndarray, lookat: np.ndarray, up: np.ndarray, verts3d: np.ndarray) -> np.ndarray:
+    """
+        Find projection of point(s) on camera
+
+        Arguments:
+            f: Camera f
+            center: Camera center
+            lookat: Camera lookat point
+            up: Camera up unit vector
+            verts3d: Coordinates of 3D points
+        Returns:
+            point(s) projection on camera
+            point(s) depth
+    """
+
+    # Find unit vectors for the camera's system
+    z = (lookat - center) / np.linalg.norm(lookat - center)
+
+    t = up - np.dot(up, z) * z
+    y = t / np.linalg.norm(t)
+
+    x = np.cross(y, z)
+    
+    return project_cam(f, center, x, y, z, verts3d)
+
+
+
 def _rotation_matrix(angle = 0., axis: np.ndarray = np.nan) -> np.ndarray:
     """
         Create rotation matrix
