@@ -1,4 +1,5 @@
 import numpy as np
+import triangle_rasterizer as tr
 
 # Conf
 IMG_WIDTH = 512
@@ -132,6 +133,60 @@ def project_cam_lookat(f: float, center: np.ndarray, lookat: np.ndarray, up: np.
     x = np.cross(y, z)
     
     return project_cam(f, center, x, y, z, verts3d)
+
+
+
+def rasterize(verts2d: np.ndarray, imgHeight: int, imgWidth: int, camHeight: float, camWidth: float) -> np.ndarray:
+    """
+        Project from camera to image
+
+        Argument:
+            verts2d: Coordinates of point(s)
+            imgHeight: Image height
+            imgWidth: Image width
+            camHeight: Camera height
+            camWidth: Camera width
+        Returns:
+            point(s) on image
+    """
+    
+    return verts2d
+
+
+
+def render_object(
+        verts3d: np.ndarray,
+        faces: np.ndarray,
+        vcolors: np.ndarray,
+        imgHeight: int,
+        imgWidth: int,
+        camHeight: float,
+        camWidth: float,
+        f: float,
+        center: np.ndarray,
+        lookat: np.ndarray,
+        up: np.ndarray
+    ) -> np.ndarray:
+        """
+            Render image
+
+            Arguments:
+                verts3d: Coordinates of point(s)
+                faces: Triangles
+                vcolors: Color of point(s)
+                imgHeight: Image height
+                imgWidth: Image width
+                camHeight: Camera height
+                camWidth: Camera width
+                f: Camera f
+                center: Camera center
+                lookat: Camera lookat point
+                up: Camera up unit vector
+            Returns:
+                rendered image
+        """
+
+        pass
 
 
 
