@@ -5,7 +5,7 @@ IMG_WIDTH = 512
 IMG_HEIGHT = 512
 CAMERA_WIDTH = 15
 CAMERA_HEIGHT = 15
-F = 70
+F = 70.
 BACKGROUND = [1., 1., 1.]
 
 
@@ -67,6 +67,44 @@ def system_transform(point: np.ndarray, angle = 0., axis: np.ndarray = np.nan, c
         point = np.matmul(rotationMatrix, point.transpose()).transpose()
 
     return point
+
+
+
+def project_cam(f: float, center: np.ndarray, x: np.ndarray, y: np.ndarray, z: np.ndarray, point: np.ndarray) -> np.ndarray:
+    """
+        Find projection of point(s) on camera
+
+        Arguments:
+            f: Camera f
+            center: Camera center
+            x: Camera x direction vector
+            y: Camera y direction vector
+            z: Camera z direction vector
+            point: Point(s) to project
+        Returns:
+            point(s) projection on camera
+            point(s) depth
+    """
+
+    # Transform to camera system
+    point = np.add(point, -center)
+    point = np.matmul(np.array([x, y, z]), point.transpose()).transpose() # Rotation matrix = [x y z].T
+
+    # If point is 1d array, make it 2d.
+    if point.ndim == 1:
+        point = point[None]
+
+    # TODO
+    # Remove points with z = 0
+    point = point[point[:,2] != 0]
+
+    # Point projection: (x', y') = f * (x, y) / z
+    verts2d = f * ( point[:, [0, 1]] / point[:, 2, None] )
+
+    # Depth
+    depth = point[:,2]
+
+    return verts2d, depth
 
 
 
