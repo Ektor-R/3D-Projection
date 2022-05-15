@@ -186,7 +186,15 @@ def render_object(
                 rendered image
         """
 
-        pass
+        [verts2d, depth] = project_cam_lookat(f, center, lookat, up, verts3d)
+
+        verts2d = rasterize(verts2d, imgHeight, imgWidth, camHeight, camWidth)
+
+        tr.BACKGROUND = BACKGROUND
+        tr.M = imgWidth
+        tr.N = imgHeight
+
+        return tr.render(verts2d, faces, vcolors, depth, 'gouraud')
 
 
 
