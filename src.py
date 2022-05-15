@@ -95,9 +95,8 @@ def project_cam(f: float, center: np.ndarray, x: np.ndarray, y: np.ndarray, z: n
     if point.ndim == 1:
         point = point[None]
 
-    # TODO
-    # Remove points with z = 0
-    point = point[point[:,2] != 0]
+    # Put points with z = 0 behind the camera
+    point[point[:,2] == 0, 2] = -1
 
     # Point projection: (x', y') = f * (x, y) / z
     verts2d = f * ( point[:, [0, 1]] / point[:, 2, None] )
@@ -187,6 +186,12 @@ def render_object(
         """
 
         [verts2d, depth] = project_cam_lookat(f, center, lookat, up, verts3d)
+
+        # Keep only points in front of the camera
+        inFront = verts2d[:,2] > 0
+        verts2d = verts2d[inFront]
+        faces   = faces[inFront]
+        vcolors = vcolors[inFront]
 
         verts2d = rasterize(verts2d, imgHeight, imgWidth, camHeight, camWidth)
 
