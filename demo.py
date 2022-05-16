@@ -8,7 +8,7 @@ data = np.load('hw2.npy', allow_pickle = True)
 
 verts3d = data[()]['verts3d']
 faces = data[()]['faces']
-vcolors = data[()]['verts3d']
+vcolors = data[()]['vcolors']
 c_org = data[()]['c_org']
 c_lookat = data[()]['c_lookat']
 c_up = data[()]['c_up']
