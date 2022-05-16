@@ -1,3 +1,4 @@
+from typing import Tuple
 import numpy as np
 import triangle_rasterizer as tr
 
@@ -66,7 +67,7 @@ def system_transform(point: np.ndarray, angle = 0., axis: np.ndarray = np.nan, c
 
 
 
-def project_cam(f: float, center: np.ndarray, x: np.ndarray, y: np.ndarray, z: np.ndarray, point: np.ndarray) -> np.ndarray:
+def project_cam(f: float, center: np.ndarray, x: np.ndarray, y: np.ndarray, z: np.ndarray, point: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
         Find projection of point(s) on camera
 
@@ -90,8 +91,7 @@ def project_cam(f: float, center: np.ndarray, x: np.ndarray, y: np.ndarray, z: n
     if point.ndim == 1:
         point = point[None]
 
-    # Put points with z = 0 behind the camera
-    point[point[:,2] == 0, 2] = -1
+    # TODO z = 0 
 
     # Point projection: (x', y') = f * (x, y) / z
     verts2d = f * ( point[:, [0, 1]] / point[:, 2, None] )
@@ -103,7 +103,7 @@ def project_cam(f: float, center: np.ndarray, x: np.ndarray, y: np.ndarray, z: n
 
 
 
-def project_cam_lookat(f: float, center: np.ndarray, lookat: np.ndarray, up: np.ndarray, verts3d: np.ndarray) -> np.ndarray:
+def project_cam_lookat(f: float, center: np.ndarray, lookat: np.ndarray, up: np.ndarray, verts3d: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
         Find projection of point(s) on camera
 
@@ -144,7 +144,9 @@ def rasterize(verts2d: np.ndarray, imgHeight: int, imgWidth: int, camHeight: flo
             point(s) on image
     """
     
-    return verts2d
+    verts2d = verts2d * imgHeight / camHeight
+    
+    return system_transform(verts2d, center = np.array([-imgWidth/2, -imgHeight/2])).round()
 
 
 
@@ -181,12 +183,6 @@ def render_object(
         """
 
         [verts2d, depth] = project_cam_lookat(f, center, lookat, up, verts3d)
-
-        # Keep only points in front of the camera
-        inFront = verts2d[:,2] > 0
-        verts2d = verts2d[inFront]
-        faces   = faces[inFront]
-        vcolors = vcolors[inFront]
 
         verts2d = rasterize(verts2d, imgHeight, imgWidth, camHeight, camWidth)
 
