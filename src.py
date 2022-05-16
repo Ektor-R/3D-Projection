@@ -42,14 +42,13 @@ def affine_transform(point: np.ndarray, angle = 0., axis: np.ndarray = np.nan, t
 
 
 
-def system_transform(point: np.ndarray, angle = 0., axis: np.ndarray = np.nan, center = np.array([0, 0, 0])) -> np.ndarray:
+def system_transform(point: np.ndarray, rotationMatrix: np.ndarray = np.nan, center = np.array([0, 0, 0])) -> np.ndarray:
     """
         Coordinate System Transformation
 
         Arguments:
             point: Point(s) to transform.
-            angle: Angle of rotation.
-            axis: Axis of rotation
+            rotationMatrix: Rotation matrix
             center: Center of new co. system
 
         Returns:
@@ -59,9 +58,9 @@ def system_transform(point: np.ndarray, angle = 0., axis: np.ndarray = np.nan, c
     # Translate point to new center
     point = affine_transform(point, translation = -center)
 
-    # Pass rotation if axis is not defined or angle is 0
-    if axis is not np.nan or angle != 0:
-        point = affine_transform(point, -angle, axis)
+    # Pass rotation if rotationMatrix is not defined
+    if rotationMatrix is not np.nan:
+        point = np.matmul(rotationMatrix, point.transpose()).transpose()
 
     return point
 
@@ -84,14 +83,13 @@ def project_cam(f: float, center: np.ndarray, x: np.ndarray, y: np.ndarray, z: n
     """
 
     # Transform to camera system
-    point = system_transform(point, center = center)
-    point = np.matmul(np.array([x, y, z]), point.transpose()).transpose() # Rotation matrix = [x y z].T
-
+    point = system_transform(point, np.array([x, y, z]), center)
+    
     # If point is 1d array, make it 2d.
     if point.ndim == 1:
         point = point[None]
 
-    # TODO z = 0 
+    # TODO z <= 0 
 
     # Point projection: (x', y') = f * (x, y) / z
     verts2d = f * ( point[:, [0, 1]] / point[:, 2, None] )
@@ -196,7 +194,7 @@ def render_object(
 
 def _rotation_matrix(angle = 0., axis: np.ndarray = np.nan) -> np.ndarray:
     """
-        Create rotation matrix
+        Create a 3D rotation matrix
 
         Arguments:
             angle: Angle of rotation.
