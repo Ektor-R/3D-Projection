@@ -4,8 +4,8 @@ import triangle_rasterizer as tr
 # Conf
 IMG_WIDTH = 512
 IMG_HEIGHT = 512
-CAMERA_WIDTH = 15
-CAMERA_HEIGHT = 15
+CAMERA_WIDTH = 15.
+CAMERA_HEIGHT = 15.
 F = 70.
 BACKGROUND = [1., 1., 1.]
 
@@ -56,16 +56,11 @@ def system_transform(point: np.ndarray, angle = 0., axis: np.ndarray = np.nan, c
     """
 
     # Translate point to new center
-    point = np.add(point, -center)
+    point = affine_transform(point, translation = -center)
 
     # Pass rotation if axis is not defined or angle is 0
     if axis is not np.nan or angle != 0:
-        # Create rotation matrix
-        rotationMatrix = _rotation_matrix(-angle, axis)
-
-        # Rotate
-        # Transpose coordinates before and after rotation in case multiple points have been given
-        point = np.matmul(rotationMatrix, point.transpose()).transpose()
+        point = affine_transform(point, -angle, axis)
 
     return point
 
@@ -88,7 +83,7 @@ def project_cam(f: float, center: np.ndarray, x: np.ndarray, y: np.ndarray, z: n
     """
 
     # Transform to camera system
-    point = np.add(point, -center)
+    point = system_transform(point, center = center)
     point = np.matmul(np.array([x, y, z]), point.transpose()).transpose() # Rotation matrix = [x y z].T
 
     # If point is 1d array, make it 2d.
