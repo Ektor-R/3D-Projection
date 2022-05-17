@@ -143,8 +143,13 @@ def rasterize(verts2d: np.ndarray, imgHeight: int, imgWidth: int, camHeight: flo
     """
     
     verts2d = verts2d * imgHeight / camHeight
+
+    # Transform to image coordinates and get integer values
+    verts2d = system_transform(verts2d, center = np.array([-imgWidth/2, -imgHeight/2])).round()
+    # From bottom-top to top-bottom y
+    verts2d[:, 1] = imgHeight - verts2d[:, 1]
     
-    return system_transform(verts2d, center = np.array([-imgWidth/2, -imgHeight/2])).round()
+    return verts2d
 
 
 
