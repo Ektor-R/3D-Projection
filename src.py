@@ -142,7 +142,9 @@ def rasterize(verts2d: np.ndarray, imgHeight: int, imgWidth: int, camHeight: flo
             point(s) on image
     """
     
-    verts2d = verts2d * imgHeight / camHeight
+    # Stretch
+    verts2d[:, 0] = verts2d[:, 0] * imgWidth / camWidth
+    verts2d[:, 1] = verts2d[:, 1] * imgHeight / camHeight
 
     # Transform to image coordinates and get integer values
     verts2d = system_transform(verts2d, center = np.array([-imgWidth/2, -imgHeight/2])).round()
@@ -190,8 +192,8 @@ def render_object(
         verts2d = rasterize(verts2d, imgHeight, imgWidth, camHeight, camWidth)
 
         tr.BACKGROUND = BACKGROUND
-        tr.M = imgWidth
-        tr.N = imgHeight
+        tr.M = imgHeight
+        tr.N = imgWidth
 
         return tr.render(verts2d, faces, vcolors, depth, 'gouraud')
 
