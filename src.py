@@ -85,7 +85,7 @@ def project_cam(f: float, center: np.ndarray, x: np.ndarray, y: np.ndarray, z: n
     # Transform to camera system
     point = system_transform(point, np.array([x, y, z]), center)
     
-    # If point is 1d array, make it 2d.
+    # If point is vector, make it array.
     if point.ndim == 1:
         point = point[None]
 
